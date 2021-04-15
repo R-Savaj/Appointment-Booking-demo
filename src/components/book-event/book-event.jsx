@@ -47,7 +47,7 @@ const BookEvent=()=>{
                             </div>
                             <div className="form-group">
                                 <label htmlFor="duration">Duration:</label>
-                                <input type="text" className="form-control" id="duration" onChange={(event)=>setIntialValue(event.target.value)}/>
+                                <input type="text" className="form-control" id="duration" onChange={(event)=>setIntialValue({...intialValue,duration:event.target.value})}/>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="timezone">TimeZone:</label>
