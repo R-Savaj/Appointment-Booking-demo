@@ -36,9 +36,9 @@ const ShowEvent=()=>{
                         <button className="btn btn-success mt-4" onClick={bookedEvent}>Find Booked Event</button>
                     </div>
                      <div className="col-md-6">
-                        <h2>Booked Appointment Time</h2>{bookedAppointment.length}
+                        <h2>Booked Appointment Time</h2>
                         {bookedAppointment.map(function(data, i){ 
-                          <div key={i}>Date &nbsp;{moment(data.startTime).format('MM/DD/YYYY')} From&nbsp;{moment(data.startTime).format('LT')} To&nbsp;{moment(data.endTime).format('LT')}</div>
+                         return <div key={i}>Date &nbsp;{moment(data.startTime).format('MM/DD/YYYY')} From&nbsp;{moment(data.startTime).format('LT')} To&nbsp;{moment(data.endTime).format('LT')}</div>
                         })}
                     </div>
                 </div>
