@@ -6,23 +6,27 @@ import { appointmentService } from '../../services/appointment-booking';
 
 const ShowEvent=()=>{
    const [bookedAppointment, setbookedAppointment] = useState([]);
-   const dateRange = {
-       startDate:moment().format(),
-       endDate:moment().format()
-   }
+   const [dateRange, setdateRange] = useState({
+    startDate:new Date(new Date().setHours(0,0,0,0)).toISOString(),
+    endDate:new Date(new Date().setHours(23,59,59,999)).toISOString(),
+   }) 
     const selectDateRange=(event)=>{
-        dateRange.startDate = moment(event.start).format()
-        dateRange.endDate = moment(event.end).format()
+        setdateRange(
+            {...dateRange,
+                startDate:new Date(new Date(event.start).setHours(0,0,0,0)).toISOString(),
+                endDate:new Date(new Date(event.end).setHours(23,59,59,999)).toISOString()
+            }
+        )
     }
 
     const bookedEvent=async()=>{
-         setbookedAppointment([]);
-         await appointmentService.showEvent(dateRange).then((res)=>{
+        setbookedAppointment([]);
+        await appointmentService.showEvent(dateRange).then((res)=>{
             setbookedAppointment(res.data.data.appointments);
-          })
-         .catch((err)=>{
-             console.log('error',err);    
-         })
+        })
+        .catch((err)=>{
+            console.log('error',err);    
+        })
         
     }
     return (

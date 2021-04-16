@@ -1,7 +1,6 @@
 import React,{useState} from 'react';
 import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
-import moment from 'moment';
 import { Link } from 'react-router-dom';
 
 import { appointmentService } from '../../services/appointment-booking';
@@ -9,7 +8,7 @@ import FreeSlot from '../free-slot/free-slot';
 
 const BookEvent=()=>{
     const [intialValue, setIntialValue] = useState({
-        dateTime:moment().format("YYYY-MM-DDTHH:mm:ss"),
+        dateTime:new Date().toISOString(),
         duration:null,
         timeZone:'Asia/Kolkata'
     });
@@ -20,7 +19,7 @@ const BookEvent=()=>{
         {key:'Australia/Sydney',value:'GMT+10 Australia/Sydney (EST)'}  
     ]
     const selectDateTime=(event)=>{
-        setIntialValue({...intialValue,dateTime:moment(event._d).format("YYYY-MM-DDTHH:mm:ss")});
+        setIntialValue({...intialValue,dateTime:event._d.toISOString()});
     }
     const selectTimeZone = (event)=>{
         setIntialValue({...intialValue,timeZone:event.target.value});

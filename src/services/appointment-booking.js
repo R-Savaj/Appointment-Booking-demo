@@ -17,7 +17,6 @@ async function createEvent(param){
 
 async function showEvent(param){
     const response = await axios.get(`${baseUrl}/event?startDate=${param.startDate}&endDate=${param.endDate}`);
-    //const response = await axios.get(`${baseUrl}/event?startDate=2021-03-27T16:00:00-04:00&endDate=2021-03-27T20:00:00-04:00`);
     return response;
 }
 

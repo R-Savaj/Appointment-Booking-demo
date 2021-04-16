@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "react-datetime/css/react-datetime.css";
+import 'react-toastify/dist/ReactToastify.css'; 
 
 ReactDOM.render(
   <React.StrictMode>
