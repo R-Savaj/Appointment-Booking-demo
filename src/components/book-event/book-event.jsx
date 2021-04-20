@@ -1,76 +1,109 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import Datetime from 'react-datetime';
 import "react-datetime/css/react-datetime.css";
 import { Link } from 'react-router-dom';
-
-import { appointmentService } from '../../services/appointment-booking';
+import {useDispatch,useSelector} from 'react-redux';
 import FreeSlot from '../free-slot/free-slot';
+import {toast} from 'react-toastify';
+import { Formik, Field, Form, ErrorMessage, setIn } from 'formik';
+import * as Yup from 'yup';
+import {CustomSelect} from '../select-field/custom-select';
+import momentTimezone from 'moment-timezone';
+import {findFreeSlot} from '../../redux/action'
 
+toast.configure() 
 const BookEvent=()=>{
     const [intialValue, setIntialValue] = useState({
         dateTime:new Date().toISOString(),
-        duration:null,
-        timeZone:'Asia/Kolkata'
+        duration:'',
+        timeZone:''
     });
     const [freeSlot, setFreeSlot] = useState([]);
-    const timeZone=[
-        {key:'Asia/Kolkata',value:'GMT+05:30 Asia/Kolkata (IST)'},
-        {key:'America/Los_Angeles',value:'GMT-08 America/Los_Angeles (PST)'},
-        {key:'Australia/Sydney',value:'GMT+10 Australia/Sydney (EST)'}  
-    ]
+    
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const state = useSelector(state=>state);
+    const timeZones = momentTimezone.tz.names();
+    const offsetTmz=[]; 
+    for(let i in timeZones){
+        offsetTmz.push({label:"(GMT"+momentTimezone.tz(timeZones[i]).format('Z')+") " + timeZones[i],value:timeZones[i]});
+    }
+    useEffect(() => {
+        setFreeSlot([]);
+        if(state){
+            setLoading(state.loading);
+            if(state.items){
+                setFreeSlot(state.items);
+            }
+            if(state.error){
+                toast.warning('Something went wrong.Please try again')
+            }
+        }
+       
+    }, [state])
+    const validationSchema = Yup.object().shape({
+        duration: Yup.string()
+            .required('Duriations is required'),
+        timeZone:Yup.string() 
+             .required('Please select timezone')
+    });
     const selectDateTime=(event)=>{
         setIntialValue({...intialValue,dateTime:event._d.toISOString()});
     }
-    const selectTimeZone = (event)=>{
-        setIntialValue({...intialValue,timeZone:event.target.value});
-    }   
     const submitEvent=(event)=>{
-        event.preventDefault();
+        setIntialValue(event);
         setFreeSlot([]);
-        appointmentService.findFreeSlot(intialValue).then((res)=>{
-           setFreeSlot(res.data.data.availability);
-        })
-        .catch((err)=>{
-            console.log('error',err);    
-        })
+        dispatch(findFreeSlot(event));
     }
     return(
-        <div>
+        <div className="ml-lg-auto w-75">
             <div className="row">
                 <div className="col-md-6">
                     <div className="container">
                         <h2>Pick Date and Time</h2>
-                        <form onSubmit={submitEvent}>
-                            <div className="form-group">
-                                <Datetime input={false} onChange={selectDateTime} timeFormat={false}/>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="duration">Duration:</label>
-                                <input type="text" className="form-control" id="duration" onChange={(event)=>setIntialValue({...intialValue,duration:event.target.value})}/>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="timezone">TimeZone:</label>
-                                <select className="form-control" onChange={selectTimeZone}>
-                                {timeZone.map(function(data, key){  return (
-                                    <option key={key} value={data.key}>{data.value}</option> )
-                                })}
-                                </select>
-                            </div>
-                            <button className="btn btn-success" >Find Available Slot</button>
-                            <Link to="/show-event" className="btn btn-success ml-5">Show Existing Event</Link>
-                        </form> 
-                    </div>
-                </div>
-                <div className="col-md-6">
-                {freeSlot.length > 0 ?
-                    <FreeSlot freeSlot={freeSlot} duration={intialValue.duration} selecteddate={intialValue.dateTime}/>:
-                ''}
+                        <Formik initialValues={intialValue} validationSchema={validationSchema} onSubmit={submitEvent} enableReinitialize>
+                         {({ errors, touched}) => {
+                         return (
+                             <Form>
+                                <div className="form-group">
+                                    <Datetime input={false} onChange={selectDateTime} timeFormat={false}/>
+                                </div>
+                                <div className="form-group">
+                                    <label>Duration</label>
+                                    <Field name="duration" type="text" className={'form-control' + (errors.duration && touched.duration ? ' is-invalid' : '')} />
+                                    <ErrorMessage name="duration" component="div" className="invalid-feedback" />
+                                </div>
+                                <div>
+                                    <label htmlFor="timeZone">TimeZone:</label>
+                                    <Field
+                                        className={(errors.timeZone && touched.timeZone ? ' is-invalid' : '')}
+                                        name="timeZone"
+                                        options={offsetTmz}
+                                        component={CustomSelect}
+                                        placeholder="Select a language..."
+                                    
+                                    />
+                                    <ErrorMessage name="timeZone" component="div" className="invalid-feedback" />
+                                </div>
+                                <div className="form-group mt-4">
+                                    <button type="submit" className="btn btn-primary">Find Available Slot</button>
+                                    <Link to="/show-event" className="btn btn-success ml-5">Show Existing Event</Link>
+                                </div>
+                            </Form>
+                        );
+                        }}
+                    </Formik>
                 </div>
             </div>
-            <div>
-              
+            <div className="col-md-6">
+                {loading ? 'Loading.....' : freeSlot.length > 0 ?
+                <FreeSlot freeSlot={freeSlot} duration={intialValue.duration} selecteddate={intialValue.dateTime}/>:
+                ''}
             </div>
         </div>
+      <div>          
+    </div>
+    </div>
     )
 }
 

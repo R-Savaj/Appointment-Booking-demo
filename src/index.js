@@ -1,15 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "react-datetime/css/react-datetime.css";
 import 'react-toastify/dist/ReactToastify.css'; 
+import {Provider} from "react-redux";
+import { eventReducer } from './redux/reducer';
+import thunk from "redux-thunk";
+import { applyMiddleware, createStore } from 'redux';
+
+import './index.css';
+import App from './App';
+
+const store = createStore(eventReducer,applyMiddleware(thunk));
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <App/>
+  </Provider>,
   document.getElementById('root')
 );
 
